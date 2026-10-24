@@ -1,0 +1,16 @@
+{
+  "name": "iatinyfish",
+  "version": "1.0.0",
+  "description": "Aplicacion Android desarrollada con Kotlin y Jetpack Compose a partir del codelab TinyPrice. La app permite buscar ofertas, revisar resultados y abrir la fuente original. La clave privada de TinyFish no se almacena en el APK: una Edge Function de Supabase actua como intermediaria.",
+  "main": "index.js",
+  "scripts": {
+    "supabase": "supabase",
+    "supabase:version": "supabase --version"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "supabase": "2.122.0"
+  }
+}
