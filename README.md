@@ -15,22 +15,34 @@ Aplicacion Android desarrollada con Kotlin y Jetpack Compose a partir del codela
 
 1. Abre el proyecto en Android Studio.
 2. Sincroniza Gradle y selecciona un emulador o dispositivo con API 23 o superior.
-3. Ejecuta la configuracion `app`. Por defecto se utilizan datos de demostracion.
+3. Ejecuta la configuracion `app`. La configuracion incluida consulta la Edge Function alojada de TinyPrice.
 
-Para usar la funcion alojada, configura estas propiedades fuera del repositorio, por ejemplo en `~/.gradle/gradle.properties`:
+La URL publica del proyecto esta configurada en `gradle.properties`:
 
 ```properties
-edgeRuntimeBaseUrl=https://YOUR_PROJECT_REF.supabase.co/functions/v1
+edgeRuntimeBaseUrl=https://lqritfdfipwyqspssari.supabase.co/functions/v1
 useRemoteDeals=true
+```
+
+Para ejecutar la app temporalmente con los datos locales de demostracion:
+
+```bash
+./gradlew :app:assembleDebug -PuseRemoteDeals=false
 ```
 
 ## Verificacion
 
 ```bash
-./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug
+./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug :app:connectedDebugAndroidTest
 ```
 
 La variable `TINYFISH_API_KEY` debe configurarse exclusivamente como secreto de Supabase. Nunca debe añadirse a Kotlin, Gradle, GitHub ni capturas.
+
+La funcion publicada responde en:
+
+```text
+https://lqritfdfipwyqspssari.supabase.co/functions/v1/search-products
+```
 
 ## Fuente
 

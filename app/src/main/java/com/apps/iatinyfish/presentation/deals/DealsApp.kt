@@ -45,6 +45,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +57,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
@@ -81,6 +83,11 @@ fun DealsApp(state: DealsUiState, onEvent: (DealsEvent) -> Unit) {
 
 @Composable
 private fun DealsSearchScreen(state: DealsUiState, onEvent: (DealsEvent) -> Unit) {
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(Unit) {
+        focusManager.clearFocus(force = true)
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -112,9 +119,23 @@ private fun DealsSearchScreen(state: DealsUiState, onEvent: (DealsEvent) -> Unit
                             modifier = Modifier.semantics { contentDescription = "Buscar productos" },
                         )
                     },
-                    trailingIcon = { TextButton(onClick = { onEvent(DealsEvent.SubmitSearch) }) { Text("Buscar", fontWeight = FontWeight.Bold) } },
+                    trailingIcon = {
+                        TextButton(
+                            onClick = {
+                                focusManager.clearFocus(force = true)
+                                onEvent(DealsEvent.SubmitSearch)
+                            },
+                        ) {
+                            Text("Buscar", fontWeight = FontWeight.Bold)
+                        }
+                    },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { onEvent(DealsEvent.SubmitSearch) }),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            focusManager.clearFocus(force = true)
+                            onEvent(DealsEvent.SubmitSearch)
+                        },
+                    ),
                     shape = RoundedCornerShape(18.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -138,20 +159,28 @@ private fun DealsSearchScreen(state: DealsUiState, onEvent: (DealsEvent) -> Unit
         } else {
             DiscoveryHome(
                 topPadding = padding.calculateTopPadding(),
-                onSuggestion = { onEvent(DealsEvent.UseSuggestion(it)) },
+                isPreviewData = state.isPreviewData,
+                onSuggestion = {
+                    focusManager.clearFocus(force = true)
+                    onEvent(DealsEvent.UseSuggestion(it))
+                },
             )
         }
     }
 }
 
 @Composable
-private fun DiscoveryHome(topPadding: androidx.compose.ui.unit.Dp, onSuggestion: (String) -> Unit) {
+private fun DiscoveryHome(
+    topPadding: androidx.compose.ui.unit.Dp,
+    isPreviewData: Boolean,
+    onSuggestion: (String) -> Unit,
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 20.dp, top = topPadding + 8.dp, end = 20.dp, bottom = 28.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        item { HeroCard() }
+        item { HeroCard(isPreviewData = isPreviewData) }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("Prueba una búsqueda", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -172,7 +201,7 @@ private fun DiscoveryHome(topPadding: androidx.compose.ui.unit.Dp, onSuggestion:
 }
 
 @Composable
-private fun HeroCard() {
+private fun HeroCard(isPreviewData: Boolean) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
@@ -184,7 +213,14 @@ private fun HeroCard() {
                 .padding(24.dp),
         ) {
             Surface(color = Color.White.copy(alpha = .18f), shape = RoundedCornerShape(99.dp)) {
-                Text("DEMO · BÚSQUEDA DE OFERTAS", Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = .8.sp)
+                Text(
+                    if (isPreviewData) "DEMO · BÚSQUEDA DE OFERTAS" else "EN VIVO · BÚSQUEDA WEB",
+                    Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    color = Color.White,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = .8.sp,
+                )
             }
             Spacer(Modifier.height(18.dp))
             Text("Encuentra la mejor compra sin abrir diez pestañas.", style = MaterialTheme.typography.headlineSmall, color = Color.White, fontWeight = FontWeight.ExtraBold, lineHeight = 30.sp)
